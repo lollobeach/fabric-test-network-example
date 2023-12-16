@@ -163,20 +163,30 @@ function createOrgs() {
     fi
     infoln "Generating certificates using cryptogen tool"
 
-    infoln "Creating Org1 Identities"
+    infoln "Creating SupplierA Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-suppliera.yaml --output="organizations"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
 
-    infoln "Creating Org2 Identities"
+    infoln "Creating SupplierB Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations"
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-supplierb.yaml --output="organizations"
+    res=$?
+    { set +x; } 2>/dev/null
+    if [ $res -ne 0 ]; then
+      fatalln "Failed to generate certificates..."
+    fi
+
+    infoln "Creating Agency Identities"
+
+    set -x
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-agency.yaml --output="organizations"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -196,56 +206,56 @@ function createOrgs() {
   fi
 
   # Create crypto material using cfssl
-  if [ "$CRYPTO" == "cfssl" ]; then
+  # if [ "$CRYPTO" == "cfssl" ]; then
 
-    . organizations/cfssl/registerEnroll.sh
-    #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.example.com org1
-    peer_cert admin Admin@org1.example.com org1
+  #   . organizations/cfssl/registerEnroll.sh
+  #   #function_name cert-type   CN   org
+  #   peer_cert peer peer0.org1.example.com org1
+  #   peer_cert admin Admin@org1.example.com org1
 
-    infoln "Creating Org2 Identities"
-    #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.example.com org2
-    peer_cert admin Admin@org2.example.com org2
+  #   infoln "Creating Org2 Identities"
+  #   #function_name cert-type   CN   org
+  #   peer_cert peer peer0.org2.example.com org2
+  #   peer_cert admin Admin@org2.example.com org2
 
-    infoln "Creating Orderer Org Identities"
-    #function_name cert-type   CN   
-    orderer_cert orderer orderer.example.com
-    orderer_cert admin Admin@example.com
+  #   infoln "Creating Orderer Org Identities"
+  #   #function_name cert-type   CN   
+  #   orderer_cert orderer orderer.example.com
+  #   orderer_cert admin Admin@example.com
 
-  fi 
+  # fi 
 
   # Create crypto material using Fabric CA
-  if [ "$CRYPTO" == "Certificate Authorities" ]; then
-    infoln "Generating certificates using Fabric CA"
-    ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
+  # if [ "$CRYPTO" == "Certificate Authorities" ]; then
+  #   infoln "Generating certificates using Fabric CA"
+  #   ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
 
-    . organizations/fabric-ca/registerEnroll.sh
+  #   . organizations/fabric-ca/registerEnroll.sh
 
-    while :
-    do
-      if [ ! -f "organizations/fabric-ca/org1/tls-cert.pem" ]; then
-        sleep 1
-      else
-        break
-      fi
-    done
+  #   while :
+  #   do
+  #     if [ ! -f "organizations/fabric-ca/org1/tls-cert.pem" ]; then
+  #       sleep 1
+  #     else
+  #       break
+  #     fi
+  #   done
 
-    infoln "Creating Org1 Identities"
+  #   infoln "Creating Org1 Identities"
 
-    createOrg1
+  #   createOrg1
 
-    infoln "Creating Org2 Identities"
+  #   infoln "Creating Org2 Identities"
 
-    createOrg2
+  #   createOrg2
 
-    infoln "Creating Orderer Org Identities"
+  #   infoln "Creating Orderer Org Identities"
 
-    createOrderer
+  #   createOrderer
 
-  fi
+  # fi
 
-  infoln "Generating CCP files for Org1 and Org2"
+  infoln "Generating CCP files for SupplierA, SupplierB and Agency"
   ./organizations/ccp-generate.sh
 }
 
@@ -287,9 +297,9 @@ function networkUp() {
 
   COMPOSE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
 
-  if [ "${DATABASE}" == "couchdb" ]; then
-    COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
-  fi
+  # if [ "${DATABASE}" == "couchdb" ]; then
+  #   COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
+  # fi
 
   DOCKER_SOCK="${DOCKER_SOCK}" ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} up -d 2>&1
 
@@ -329,7 +339,8 @@ function createChannel() {
 
   # now run the script that creates a channel. This script uses configtxgen once
   # to create the channel creation transaction and the anchor peer updates.
-  scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+  scripts/createChannelQ1.sh q1channel $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+  scripts/createChannelQ2.sh q2channel $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
 }
 
 
@@ -414,7 +425,7 @@ function queryChaincode() {
 # Tear down running network
 function networkDown() {
   local temp_compose=$COMPOSE_FILE_BASE
-  COMPOSE_FILE_BASE=compose-bft-test-net.yaml
+  COMPOSE_FILE_BASE=compose-test-net.yaml
   COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
   COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
   COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
@@ -428,8 +439,8 @@ function networkDown() {
 
   if [ "${CONTAINER_CLI}" == "docker" ]; then
     DOCKER_SOCK=$DOCKER_SOCK ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} down --volumes --remove-orphans
-  elif [ "${CONTAINER_CLI}" == "podman" ]; then
-    ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} down --volumes
+  # elif [ "${CONTAINER_CLI}" == "podman" ]; then
+  #   ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} down --volumes
   else
     fatalln "Container CLI  ${CONTAINER_CLI} not supported"
   fi
@@ -454,6 +465,13 @@ function networkDown() {
     # remove channel and script artifacts
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf channel-artifacts log.txt *.tar.gz'
   fi
+
+    rm -rf test-network/system-genesis-block/*.block 
+    rm -rf test-network/organizations/peerOrganizations 
+    rm -rf test-network/organizations/ordererOrganizations
+
+    # remove channel and script artifacts
+    rm -rf test-network/channel-artifacts test-network/log.txt
 }
 
 . ./network.config
@@ -461,7 +479,7 @@ function networkDown() {
 # use this as the default docker-compose yaml definition
 COMPOSE_FILE_BASE=compose-test-net.yaml
 # docker-compose.yaml file if you are using couchdb
-COMPOSE_FILE_COUCH=compose-couch.yaml
+# COMPOSE_FILE_COUCH=compose-couch.yaml
 # certificate authorities compose file
 COMPOSE_FILE_CA=compose-ca.yaml
 # use this as the default docker-compose yaml definition for org3

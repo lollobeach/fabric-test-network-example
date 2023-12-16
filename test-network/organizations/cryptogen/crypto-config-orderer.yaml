@@ -11,7 +11,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: example.com
+    Domain: quotation.com
     EnableNodeOUs: true
 
 
@@ -20,14 +20,5 @@ OrdererOrgs:
     # ---------------------------------------------------------------------------
     Specs:
       - Hostname: orderer
-        SANS:
-          - localhost
-      - Hostname: orderer2
-        SANS:
-          - localhost
-      - Hostname: orderer3
-        SANS:
-          - localhost
-      - Hostname: orderer4
         SANS:
           - localhost

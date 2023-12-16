@@ -10,7 +10,7 @@ DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
 BFT="$5"
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="Q2Channel"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
@@ -36,7 +36,7 @@ createChannelGenesisBlock() {
 	if [ $bft_true -eq 1 ]; then
 		configtxgen -profile ChannelUsingBFT -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
 	else
-		configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+		configtxgen -profile Q2Channel -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
 	fi
 	res=$?
 	{ set +x; } 2>/dev/null
@@ -117,15 +117,15 @@ createChannel $BFT
 successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
-infoln "Joining org1 peer to the channel..."
-joinChannel 1
-infoln "Joining org2 peer to the channel..."
+infoln "Joining supplierb peer to the channel..."
 joinChannel 2
+infoln "Joining agency peer to the channel..."
+joinChannel 3
 
 ## Set the anchor peers for each org in the channel
-infoln "Setting anchor peer for org1..."
-setAnchorPeer 1
-infoln "Setting anchor peer for org2..."
+infoln "Setting anchor peer for supplierb..."
 setAnchorPeer 2
+infoln "Setting anchor peer for agency..."
+setAnchorPeer 3
 
 successln "Channel '$CHANNEL_NAME' joined"
