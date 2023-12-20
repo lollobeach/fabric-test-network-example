@@ -2,10 +2,10 @@
 
 source scripts/utils.sh
 
-CHANNEL_NAME=${1:-"mychannel"}
-CC_NAME=${2}
-CC_SRC_PATH=${3}
-CC_SRC_LANGUAGE=${4}
+CHANNEL_NAME=${1:-"quotation"}
+CC_NAME=${2:-"quotation"}
+CC_SRC_PATH=${3:-"../chaincodes"}
+CC_SRC_LANGUAGE=${3:-"javascript"}
 CC_VERSION=${5:-"1.0"}
 CC_SEQUENCE=${6:-"1"}
 CC_INIT_FCN=${7:-"NA"}
@@ -16,7 +16,7 @@ MAX_RETRY=${11:-"5"}
 VERBOSE=${12:-"false"}
 
 println "executing with the following"
-println "- CHANNEL_NAME: ${C_GREEN}${CHANNEL_NAME}${C_RESET}"
+println "- CHANNEL_NAME: ${C_GREEN}q1channel, q2channel${C_RESET}"
 println "- CC_NAME: ${C_GREEN}${CC_NAME}${C_RESET}"
 println "- CC_SRC_PATH: ${C_GREEN}${CC_SRC_PATH}${C_RESET}"
 println "- CC_SRC_LANGUAGE: ${C_GREEN}${CC_SRC_LANGUAGE}${C_RESET}"
@@ -73,46 +73,82 @@ checkPrereqs
 
 PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
 
-## Install chaincode on peer0.org1 and peer0.org2
-infoln "Installing chaincode on peer0.org1..."
+## Install chaincode on supplierA, supplierB and agency
+infoln "Installing chaincode on SupplierA..."
 installChaincode 1
-infoln "Install chaincode on peer0.org2..."
+infoln "Install chaincode on SupplierB..."
 installChaincode 2
+infoln "Install chaincode on Agency..."
+installChaincode 3
 
 resolveSequence
 
 ## query whether the chaincode is installed
-queryInstalled 1
+queryInstalled 3
 
-## approve the definition for org1
+infoln "Deploy into channel q1channel"
+## approve the definition for SupplierA
 approveForMyOrg 1
 
 ## check whether the chaincode definition is ready to be committed
-## expect org1 to have approved and org2 not to
-checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": false"
-checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": false"
+## expect SupplierA to have approved and Agency not to
+checkCommitReadiness 1 "\"SupplierAMSP\": true" "\"AgencyMSP\": false"
+checkCommitReadiness 3 "\"SupplierAMSP\": true" "\"AgencyMSP\": false"
 
-## now approve also for org2
-approveForMyOrg 2
+## now approve also for Agency
+approveForMyOrg 3
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
-checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
-checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
+checkCommitReadiness 1 "\"SupplierAMSP\": true" "\"AgencyMSP\": true"
+checkCommitReadiness 3 "\"SupplierAMSP\": true" "\"AgencyMSP\": true"
 
 ## now that we know for sure both orgs have approved, commit the definition
-commitChaincodeDefinition 1 2
+commitChaincodeDefinition 1 3
 
 ## query on both orgs to see that the definition committed successfully
 queryCommitted 1
-queryCommitted 2
+queryCommitted 3
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined
 if [ "$CC_INIT_FCN" = "NA" ]; then
   infoln "Chaincode initialization is not required"
 else
-  chaincodeInvokeInit 1 2
+  chaincodeInvokeInit 1 3
+fi
+
+
+infoln "Deploy into channel q2channel"
+## approve the definition for SupplierA
+approveForMyOrg 2
+
+## check whether the chaincode definition is ready to be committed
+## expect SupplierA to have approved and Agency not to
+checkCommitReadiness 2 "\"SupplierBMSP\": true" "\"AgencyMSP\": false"
+checkCommitReadiness 3 "\"SupplierBMSP\": true" "\"AgencyMSP\": false"
+
+## now approve also for Agency
+approveForMyOrg 3
+
+## check whether the chaincode definition is ready to be committed
+## expect them both to have approved
+checkCommitReadiness 2 "\"SupplierBMSP\": true" "\"AgencyMSP\": true"
+checkCommitReadiness 3 "\"SupplierBMSP\": true" "\"AgencyMSP\": true"
+
+## now that we know for sure both orgs have approved, commit the definition
+commitChaincodeDefinition 2 3
+
+## query on both orgs to see that the definition committed successfully
+queryCommitted 2
+queryCommitted 3
+
+## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
+## method defined
+if [ "$CC_INIT_FCN" = "NA" ]; then
+  infoln "Chaincode initialization is not required"
+else
+  chaincodeInvokeInit 2 3
 fi
 
 exit 0
