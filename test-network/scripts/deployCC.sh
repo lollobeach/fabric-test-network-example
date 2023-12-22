@@ -2,18 +2,20 @@
 
 source scripts/utils.sh
 
-CHANNEL_NAME=${1:-"quotation"}
-CC_NAME=${2:-"quotation"}
-CC_SRC_PATH=${3:-"../chaincodes"}
+# CHANNEL_NAME=${1:-"quotation"}
+CC_NAME=${1:-"quotation"}
+CC_SRC_PATH=${2:-"./chaincodes"}
 CC_SRC_LANGUAGE=${3:-"javascript"}
-CC_VERSION=${5:-"1.0"}
-CC_SEQUENCE=${6:-"1"}
-CC_INIT_FCN=${7:-"NA"}
-CC_END_POLICY=${8:-"NA"}
-CC_COLL_CONFIG=${9:-"NA"}
-DELAY=${10:-"3"}
-MAX_RETRY=${11:-"5"}
-VERBOSE=${12:-"false"}
+CC_VERSION=${4:-"1.0"}
+CC_SEQUENCE=${5:-"1"}
+CC_INIT_FCN=${6:-"NA"}
+CC_END_POLICY=${7:-"NA"}
+CC_COLL_CONFIG=${8:-"NA"}
+DELAY=${9:-"3"}
+MAX_RETRY=${10:-"5"}
+VERBOSE=${11:-"false"}
+
+CC_SRC_PATH=$CC_SRC_PATH/$CC_NAME
 
 println "executing with the following"
 println "- CHANNEL_NAME: ${C_GREEN}q1channel, q2channel${C_RESET}"
@@ -80,11 +82,12 @@ infoln "Install chaincode on SupplierB..."
 installChaincode 2
 infoln "Install chaincode on Agency..."
 installChaincode 3
-
-resolveSequence
-
 ## query whether the chaincode is installed
 queryInstalled 3
+
+# Deploy cc to q1channel
+CHANNEL_NAME="q1channel"
+resolveSequence
 
 infoln "Deploy into channel q1channel"
 ## approve the definition for SupplierA
@@ -118,9 +121,19 @@ else
   chaincodeInvokeInit 1 3
 fi
 
+###########################################################
+###########################################################
+
+# RESTART FROM HERE
+
+###########################################################
+###########################################################
+
+# Deploy cc to q2channel
+CHANNEL_NAME="q2channel"
 
 infoln "Deploy into channel q2channel"
-## approve the definition for SupplierA
+## approve the definition for SupplierB
 approveForMyOrg 2
 
 ## check whether the chaincode definition is ready to be committed

@@ -346,7 +346,7 @@ function createChannel() {
 
 ## Call the script to deploy a chaincode to the channel
 function deployCC() {
-  scripts/deployCC.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
+  scripts/deployCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
 
   if [ $? -ne 0 ]; then
     fatalln "Deploying chaincode failed"
@@ -498,6 +498,11 @@ DOCKER_SOCK="${SOCK##unix://}"
 BFT=0
 
 # Parse commandline args
+
+
+CC_NAME="quotation"
+CC_SRC_PATH="./chaincodes"
+CC_SRC_LANGUAGE="javascript"
 
 ## Parse mode
 if [[ $# -lt 1 ]] ; then
@@ -669,7 +674,7 @@ elif [ "$MODE" == "restart" ]; then
   networkDown
   networkUp
 elif [ "$MODE" == "deployCC" ]; then
-  infoln "deploying chaincode on channel '${CHANNEL_NAME}'"
+  # infoln "deploying chaincode on channel '${CHANNEL_NAME}'"
   deployCC
 elif [ "$MODE" == "deployCCAAS" ]; then
   infoln "deploying chaincode-as-a-service on channel '${CHANNEL_NAME}'"

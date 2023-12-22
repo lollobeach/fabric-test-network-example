@@ -21,7 +21,8 @@ function queryInstalled() {
   ORG=$1
   setGlobals $ORG
   set -x
-  peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
+  peer lifecycle chaincode queryinstalled --output json 
+  # | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
@@ -33,6 +34,7 @@ function queryInstalled() {
 function approveForMyOrg() {
   ORG=$1
   setGlobals $ORG
+  CC_SEQUENCE=1
   set -x
   peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.quotation.com --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${CC_VERSION} --package-id ${PACKAGE_ID} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
   res=$?
@@ -149,8 +151,7 @@ function chaincodeInvokeInit() {
 }
 
 function chaincodeQuery() {
-  ORG=$1
-  setGlobals $ORG
+  setGlobals 3
   infoln "Querying on peer0.org${ORG} on channel '$CHANNEL_NAME'..."
   local rc=1
   local COUNTER=1
@@ -160,7 +161,7 @@ function chaincodeQuery() {
     sleep $DELAY
     infoln "Attempting to Query peer0.org${ORG}, Retry after $DELAY seconds."
     set -x
-    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' >&log.txt
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["acceptQuotation", "quotation1", "accepted"]}' >&log.txt
     res=$?
     { set +x; } 2>/dev/null
     let rc=$res
