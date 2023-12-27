@@ -4,7 +4,7 @@
 
 source scripts/utils.sh
 
-CC_NAME=${1:-"quotation"}
+CC_NAME=$1
 CC_SRC_PATH=${2:-"./chaincodes"}
 CC_SRC_LANGUAGE=${3:-"javascript"}
 CC_VERSION=${4:-"1.0"}

@@ -280,6 +280,7 @@ listAllCommitted() {
   if test $rc -eq 0; then
     for channel in $CHANNEL_LIST
     do
+      echo "$channel"
       queryCommittedOnChannel "$channel"
     done
   else

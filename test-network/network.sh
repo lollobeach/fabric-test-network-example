@@ -399,7 +399,14 @@ function invokeChaincode() {
   export FABRIC_CFG_PATH=${PWD}/../config
 
   . scripts/envVar.sh
+  . scripts/utils.hs
   . scripts/ccutils.sh
+
+  # only for org 1 (SupplierA) and org2 (SupplierB)
+  ORG=$1
+  if [[$ORG -ne 1 || $ORG -ne 2]]; then
+    errorln "This method is valid only for org 1 (SupplierA) or org 2 (SupplierB)"
+  fi
 
   setGlobals $ORG
 
@@ -466,12 +473,12 @@ function networkDown() {
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf channel-artifacts log.txt *.tar.gz'
   fi
 
-    rm -rf test-network/system-genesis-block/*.block 
-    rm -rf test-network/organizations/peerOrganizations 
-    rm -rf test-network/organizations/ordererOrganizations
+  rm -rf test-network/system-genesis-block/*.block 
+  rm -rf test-network/organizations/peerOrganizations 
+  rm -rf test-network/organizations/ordererOrganizations
 
-    # remove channel and script artifacts
-    rm -rf test-network/channel-artifacts test-network/log.txt
+  # remove channel and script artifacts
+  rm -rf test-network/channel-artifacts test-network/log.txt
 }
 
 . ./network.config
@@ -500,7 +507,7 @@ BFT=0
 # Parse commandline args
 
 
-CC_NAME="quotation"
+CC_NAME=$1
 CC_SRC_PATH="./chaincodes"
 CC_SRC_LANGUAGE="javascript"
 
