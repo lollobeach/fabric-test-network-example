@@ -12,7 +12,8 @@ volumes:
   peer0.agency.quotation.com:
 
 networks:
-  quotation:
+  test:
+    name: quotation
 
 services:
 
@@ -56,7 +57,7 @@ services:
       - 7053:7053
       - 9443:9443
     networks:
-      - quotation
+      - test
 
   peer0.suppliera.quotation.com:
     container_name: peer0.suppliera.quotation.com
@@ -95,7 +96,7 @@ services:
       - 7051:7051
       - 9444:9444
     networks:
-      - quotation
+      - test
 
   peer0.supplierb.quotation.com:
     container_name: peer0.supplierb.quotation.com
@@ -134,7 +135,7 @@ services:
       - 9051:9051
       - 9445:9445
     networks:
-      - quotation
+      - test
 
   peer0.agency.quotation.com:
     container_name: peer0.agency.quotation.com
@@ -160,6 +161,7 @@ services:
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.agency.quotation.com:11051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.agency.quotation.com:11051
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.agency.quotation.com:11054
       - CORE_PEER_LOCALMSPID=AgencyMSP
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org3"}
@@ -171,8 +173,10 @@ services:
     command: peer node start
     ports:
       - 11051:11051
+      - 11054:11054
+      - 443:443
     networks:
-      - quotation
+      - test
 
   cli:
     container_name: cli
@@ -196,4 +200,4 @@ services:
       - peer0.supplierb.quotation.com
       - peer0.agency.quotation.com
     networks:
-      - quotation
+      - test

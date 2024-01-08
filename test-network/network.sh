@@ -383,7 +383,7 @@ function listChaincode() {
   . scripts/envVar.sh
   . scripts/ccutils.sh
 
-  setGlobals $ORG
+  setGlobals ${ORG}
 
   println
   queryInstalledOnPeer
@@ -402,15 +402,9 @@ function invokeChaincode() {
   . scripts/utils.hs
   . scripts/ccutils.sh
 
-  # only for org 1 (SupplierA) and org2 (SupplierB)
-  ORG=$1
-  if [[$ORG -ne 1 || $ORG -ne 2]]; then
-    errorln "This method is valid only for org 1 (SupplierA) or org 2 (SupplierB)"
-  fi
+  setGlobals ${ORG}
 
-  setGlobals $ORG
-
-  chaincodeInvoke $ORG $CHANNEL_NAME $CC_NAME $CC_INVOKE_CONSTRUCTOR
+  chaincodeInvoke $ORG $CHANNEL_NAME $CC_NAME $FUNCTION_NAME
 
 }
 
@@ -424,7 +418,7 @@ function queryChaincode() {
 
   setGlobals $ORG
 
-  chaincodeQuery $ORG $CHANNEL_NAME $CC_NAME $CC_QUERY_CONSTRUCTOR
+  chaincodeQuery $ORG $CHANNEL_NAME $CC_NAME $FUNCTION_QUERY
 
 }
 
@@ -629,11 +623,11 @@ while [[ $# -ge 1 ]] ; do
     shift
     ;;
   -ccic )
-    CC_INVOKE_CONSTRUCTOR="$2"
+    FUNCTION_NAME="$2"
     shift
     ;;
   -ccqc )
-    CC_QUERY_CONSTRUCTOR="$2"
+    FUNCTION_QUERY="$2"
     shift
     ;;    
   * )

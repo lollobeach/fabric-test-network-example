@@ -1,0 +1,18 @@
+{
+    "name": "quotation_app",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "start": "node server.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Alessandro Marcelletti",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.17.1",
+      "fabric-ca-client": "^2.2.0",
+      "fabric-network": "^2.2.0",
+      "js-yaml": "^3.14.0"
+    }
+  }

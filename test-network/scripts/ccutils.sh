@@ -290,10 +290,23 @@ listAllCommitted() {
 }
 
 chaincodeInvoke() {
+  # 1 - SupplierA; 2 - SupplierB; 3 - Agency
   ORG=$1
   CHANNEL=$2
   CC_NAME=$3
-  CC_INVOKE_CONSTRUCTOR=$4
+  # CC_INVOKE_CONSTRUCTOR=$4
+  FUNCTION_NAME=$4
+  # formatParams $@
+
+  local ORDERER=localhost:7050
+  local PEER0_ORG3=localhost:11051
+
+  local TX='{"Args":['${FUNCTION_NAME}']'}
+
+  # only for org 1 (SupplierA) and org2 (SupplierB)
+  if [[$ORG -ne 1 || $ORG -ne 2]]; then
+    errorln "This method is valid only for org 1 (SupplierA) or org 2 (SupplierB)"
+  fi
   
   infoln "Invoking on peer0.org${ORG} on channel '$CHANNEL_NAME'..."
   local rc=1
@@ -304,7 +317,16 @@ chaincodeInvoke() {
     sleep $DELAY
     infoln "Attempting to Invoke on peer0.org${ORG}, Retry after $DELAY seconds."
     set -x
-    peer chaincode invoke -o localhost:7050 -C $CHANNEL_NAME -n ${CC_NAME} -c ${CC_INVOKE_CONSTRUCTOR} --tls --cafile $ORDERER_CA  --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA  >&log.txt
+    case $1 in
+    # SupplierA
+    1)
+      local PEER0_ORG1=localhost:7051
+      peer chaincode invoke -o $ORDERER -C $CHANNEL_NAME -n ${CC_NAME} -c $TX --tls --cafile $ORDERER_CA  --peerAddresses $PEER0_ORG1 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses $PEER0_ORG3 --tlsRootCertFiles $PEER0_ORG3_CA  >&log.txt;;
+    # SupplierB
+    2)
+      local PEER0_ORG2=localhost:9051
+      peer chaincode invoke -o $ORDERER -C $CHANNEL_NAME -n ${CC_NAME} -c $TX --tls --cafile $ORDERER_CA  --peerAddresses $PEER0_ORG1 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses $PEER0_ORG3 --tlsRootCertFiles $PEER0_ORG3_CA  >&log.txt;;
+     esac
     res=$?
     { set +x; } 2>/dev/null
     let rc=$res
@@ -322,7 +344,9 @@ chaincodeQuery() {
   ORG=$1
   CHANNEL=$2
   CC_NAME=$3
-  CC_QUERY_CONSTRUCTOR=$4
+  FUNCTION_QUERY=$4
+  
+  local QUERY='{"Args":['${FUNCTION_QUERY}']'}
 
   infoln "Querying on peer0.org${ORG} on channel '$CHANNEL_NAME'..."
   local rc=1
@@ -333,7 +357,7 @@ chaincodeQuery() {
     sleep $DELAY
     infoln "Attempting to Query peer0.org${ORG}, Retry after $DELAY seconds."
     set -x
-    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c ${CC_QUERY_CONSTRUCTOR} >&log.txt
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c $QUERY >&log.txt
     res=$?
     { set +x; } 2>/dev/null
     let rc=$res
