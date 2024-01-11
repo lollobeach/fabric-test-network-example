@@ -21,14 +21,14 @@ const { TextDecoder } = require('util')
 
 const channelName = envOrDefault('CHANNEL_NAME', 'q1channel');
 const chaincodeName = envOrDefault('CHAINCODE_NAME', 'assetTransfer');
-const mspId = envOrDefault('MSP_ID', 'AgencyMSP');
+const mspId = 'AgencyMSP';
 
 // Path to crypto materials.
 const cryptoPath = '/workspaces/fabric-test-network-example/test-network/organizations/peerOrganizations/agency.quotation.com/';
 // const cryptoPath = envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..', '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'agency.quotation.com'));
 
 // Path to user private key directory.
-const keyDirectoryPath = envOrDefault('KEY_DIRECTORY_PATH', path.resolve(cryptoPath, 'users', 'User1@agency.quotation.com', 'msp', 'keystore'));
+const keyDirectoryPath = cryptoPath + 'users/User1@agency.quotation.com/msp/keystore'
 
 // Path to user certificate.
 const certPath = cryptoPath + '/users/User1@agency.quotation.com/msp/signcerts/User1@agency.quotation.com-cert.pem'
@@ -37,7 +37,7 @@ const certPath = cryptoPath + '/users/User1@agency.quotation.com/msp/signcerts/U
 const tlsCertPath = cryptoPath + 'peers/peer0.agency.quotation.com/tls/ca.crt';
 
 // Gateway peer endpoint.
-const peerEndpoint = 'jubilant-space-happiness-rv5q5794v6wcxqp7-11051.app.github.dev/'
+const peerEndpoint = 'localhost:11051'
 
 // Gateway peer SSL host name override.
 const peerHostAlias = 'peer0.agency.quotation.com'
@@ -165,12 +165,11 @@ async function submitT(channel, transactionName, transactionParams) {
 
     const id = newIdentity()
     const signer = newSigner()
-    console.log(signer)
 
     const gateway = connect({
         client,
         identity: id,
-        signe: signer,
+        signer: signer,
         // Default timeouts for different gRPC calls
         evaluateOptions: () => {
             return { deadline: Date.now() + 5000 }; // 5 seconds
@@ -186,13 +185,11 @@ async function submitT(channel, transactionName, transactionParams) {
         },
     })
 
-    console.log("Transaction Name: ", transactionName)
-    console.log("Transaction params: ", ...transactionParams)
     try {
         console.log("Connecting to the channel...")
         const network = gateway.getNetwork(channel)
         console.log("Getting the contract...")
-        const contract = await network.getContract('assetTransfer')
+        const contract = network.getContract('assetTransfer')
 
         let resp = null
         if (!transactionParams || transactionParams === '') {
