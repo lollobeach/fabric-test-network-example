@@ -12,6 +12,7 @@ function json_ccp {
         -e "s/\${CAPORT}/$3/" \
         -e "s#\${PEERPEM}#$PP#" \
         -e "s#\${CAPEM}#$CP#" \
+        -e "s/\${ORGNAME}/$6/" \
         organizations/ccp-template.json
 }
 
@@ -23,32 +24,36 @@ function yaml_ccp {
         -e "s/\${CAPORT}/$3/" \
         -e "s#\${PEERPEM}#$PP#" \
         -e "s#\${CAPEM}#$CP#" \
-        organizations/ccp-template.yaml | sed -e $'s/\\\\n/\\\n          /g'
+        -e "s/\${ORGNAME}/$6/" \
+        organizations/ccp-template.yaml | sed -e $'s/\\\\n/\\\n        /g'
 }
 
-ORG=1
+ORG="suppliera.quotation.com"
 P0PORT=7051
 CAPORT=7054
-PEERPEM=organizations/peerOrganizations/suppliera.quotation.com/tlsca/tlsca.suppliera.quotation.com-cert.pem
-CAPEM=organizations/peerOrganizations/suppliera.quotation.com/ca/ca.suppliera.quotation.com-cert.pem
+ORGNAME="SupplierAMSP"
+PEERPEM=organizations/peerOrganizations/${ORG}/tlsca/tlsca.${ORG}-cert.pem
+CAPEM=organizations/peerOrganizations/${ORG}/ca/ca.${ORG}-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/suppliera.quotation.com/connection-suppliera.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/suppliera.quotation.com/connection-suppliera.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-suppliera.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-suppliera.yaml
 
-ORG=2
+ORG="supplierb.quotation.com"
 P0PORT=9051
 CAPORT=8054
-PEERPEM=organizations/peerOrganizations/supplierb.quotation.com/tlsca/tlsca.supplierb.quotation.com-cert.pem
-CAPEM=organizations/peerOrganizations/supplierb.quotation.com/ca/ca.supplierb.quotation.com-cert.pem
+ORGNAME="SupplierBMSP"
+PEERPEM=organizations/peerOrganizations/${ORG}/tlsca/tlsca.${ORG}-cert.pem
+CAPEM=organizations/peerOrganizations/${ORG}/ca/ca.${ORG}-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplierb.quotation.com/connection-supplierb.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplierb.quotation.com/connection-supplierb.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-supplierb.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-supplierb.yaml
 
-ORG=3
+ORG="agency.quotation.com"
 P0PORT=11051
 CAPORT=11054
-PEERPEM=organizations/peerOrganizations/agency.quotation.com/tlsca/tlsca.agency.quotation.com-cert.pem
-CAPEM=organizations/peerOrganizations/agency.quotation.com/ca/ca.agency.quotation.com-cert.pem
+ORGNAME="AgencyMSP"
+PEERPEM=organizations/peerOrganizations/${ORG}/tlsca/tlsca.${ORG}-cert.pem
+CAPEM=organizations/peerOrganizations/${ORG}/ca/ca.${ORG}-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/agency.quotation.com/connection-agency.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/agency.quotation.com/connection-agency.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-agency.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGNAME)" > organizations/peerOrganizations/${ORG}/connection-agency.yaml

@@ -71,7 +71,7 @@ class FabNetwork {
             const connectionOptions = {
                 identity: walletIdentity,
                 wallet: wallet,
-                discovery: { enabled: true, asLocalhost: true },
+                discovery: { enabled: true, asLocalhost: false },
                 eventHandlerOptions: {
                     // if strategy set to null, it will not wait for any commit events to be received from peers
                     strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX

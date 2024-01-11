@@ -174,7 +174,6 @@ services:
     ports:
       - 11051:11051
       - 11054:11054
-      - 443:443
     networks:
       - test
 

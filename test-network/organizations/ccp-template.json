@@ -1,8 +1,8 @@
 {
-    "name": "test-network-org${ORG}",
+    "name": "network-${ORG}",
     "version": "1.0.0",
     "client": {
-        "organization": "Org${ORG}",
+        "organization": "${ORGNAME}",
         "connection": {
             "timeout": {
                 "peer": {
@@ -12,34 +12,34 @@
         }
     },
     "organizations": {
-        "Org${ORG}": {
-            "mspid": "Org${ORG}MSP",
+        "${ORGNAME}": {
+            "mspid": "${ORGNAME}",
             "peers": [
-                "peer0.org${ORG}.example.com"
+                "peer0.${ORG}"
             ],
             "certificateAuthorities": [
-                "ca.org${ORG}.example.com"
+                "ca.${ORG}"
             ]
         }
     },
     "peers": {
-        "peer0.org${ORG}.example.com": {
-            "url": "grpcs://localhost:${P0PORT}",
+        "peer0.${ORG}": {
+            "url": "grpcs://jubilant-space-happiness-rv5q5794v6wcxqp7-${P0PORT}.app.github.dev/",
             "tlsCACerts": {
                 "pem": "${PEERPEM}"
             },
             "grpcOptions": {
-                "ssl-target-name-override": "peer0.org${ORG}.example.com",
-                "hostnameOverride": "peer0.org${ORG}.example.com"
+                "ssl-target-name-override": "peer0.${ORG}",
+                "hostnameOverride": "peer0.${ORG}"
             }
         }
     },
     "certificateAuthorities": {
-        "ca.org${ORG}.example.com": {
-            "url": "https://localhost:${CAPORT}",
-            "caName": "ca-org${ORG}",
+        "ca.${ORG}": {
+            "url": "https://jubilant-space-happiness-rv5q5794v6wcxqp7-${CAPORT}.app.github.dev/",
+            "caName": "ca-${ORGNAME}",
             "tlsCACerts": {
-                "pem": ["${CAPEM}"]
+                "pem": "${CAPEM}"
             },
             "httpOptions": {
                 "verify": false
