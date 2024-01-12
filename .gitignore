@@ -21,5 +21,12 @@ package-lock.json
 .classpath
 .settings
 
+# Chaincode solutions
+lib/
+
+# Application solutions
+assetTransferApplication/index.js
+application/index.js
+
 # override the ignore of all config/ folders
 !full-stack-asset-transfer-guide/infrastructure/sample-network/config

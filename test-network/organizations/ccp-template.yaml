@@ -16,7 +16,7 @@ organizations:
     - ca.${ORG}
 peers:
   peer0.${ORG}:
-    url: grpcs://jubilant-space-happiness-rv5q5794v6wcxqp7-${P0PORT}.app.github.dev/
+    url: grpcs://localhost:${P0PORT}
     tlsCACerts:
       pem: |
         ${PEERPEM}
@@ -25,7 +25,7 @@ peers:
       hostnameOverride: peer0.${ORG}
 certificateAuthorities:
   ca.${ORG}:
-    url: https://jubilant-space-happiness-rv5q5794v6wcxqp7-${CAPORT}.app.github.dev/
+    url: https://localhost:${CAPORT}
     caName: ca-${ORGNAME}
     tlsCACerts:
       pem: |

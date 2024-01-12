@@ -5,12 +5,10 @@
 source scripts/utils.sh
 
 CC_NAME=$1
-CC_SRC_PATH=${2:-"./chaincodes"}
+CC_SRC_PATH=${2:-"../chaincodes"}
 CC_SRC_LANGUAGE=${3:-"javascript"}
 CC_VERSION=${4:-"1.0"}
 CC_PACKAGE_ONLY=${5:-false}
-
-# CC_SRC_PATH=$CC_SRC_PATH/$CC_NAME
 
 println "executing with the following"
 println "- CC_NAME: ${C_GREEN}${CC_NAME}${C_RESET}"
@@ -53,16 +51,11 @@ packageChaincode() {
   . scripts/envVar.sh
   setGlobals $ORG
   set -x
-  # if [ ${CC_PACKAGE_ONLY} = true ] ; then
-  #   mkdir -p packagedChaincode
-  #   peer lifecycle chaincode package packagedChaincode/${CC_NAME}_${CC_VERSION}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
-  # else
   peer lifecycle chaincode package ${CC_NAME}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
   # fi
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
-  # PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
   verifyResult $res "Chaincode packaging has failed"
   successln "Chaincode is packaged"
 }

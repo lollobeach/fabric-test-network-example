@@ -294,9 +294,7 @@ chaincodeInvoke() {
   ORG=$1
   CHANNEL=$2
   CC_NAME=$3
-  # CC_INVOKE_CONSTRUCTOR=$4
   FUNCTION_NAME=$4
-  # formatParams $@
 
   local ORDERER=localhost:7050
   local PEER0_ORG3=localhost:11051
